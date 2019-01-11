@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package io.opencensus.integration.jdbc;
+package io.orijtech.integrations.ocjdbc;
 
 import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Matchers.any;
@@ -21,7 +21,6 @@ import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 
-import io.opencensus.integration.jdbc.Observability.TrackingOperation;
 import io.opencensus.stats.Aggregation.Distribution;
 import io.opencensus.stats.BucketBoundaries;
 import io.opencensus.stats.Measure.MeasureDouble;
@@ -39,6 +38,7 @@ import io.opencensus.trace.Span;
 import io.opencensus.trace.SpanBuilder;
 import io.opencensus.trace.Status;
 import io.opencensus.trace.Tracer;
+import io.orijtech.integrations.ocjdbc.Observability.TrackingOperation;
 import java.util.Arrays;
 import org.junit.Before;
 import org.junit.Test;

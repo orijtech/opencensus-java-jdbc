@@ -7,7 +7,7 @@ apply plugin: 'maven'
 apply plugin: "net.ltgt.errorprone"
 apply plugin: "signing"
 
-group = "io.opencensus.integration"
+group = "io.orijtech.integrations"
 version = "0.0.2" // CURRENT_OCJDBC_VERSION
 
 sourceCompatibility = 1.8
