@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package io.opencensus.integration.jdbc;
+package io.orijtech.integrations.ocjdbc;
 
 import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Matchers.any;
@@ -21,7 +21,6 @@ import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 
-import io.opencensus.integration.jdbc.Observability.TrackingOperation;
 import io.opencensus.stats.Aggregation.Distribution;
 import io.opencensus.stats.BucketBoundaries;
 import io.opencensus.stats.Measure.MeasureDouble;
@@ -32,13 +31,16 @@ import io.opencensus.stats.ViewManager;
 import io.opencensus.tags.TagContext;
 import io.opencensus.tags.TagContextBuilder;
 import io.opencensus.tags.TagKey;
+import io.opencensus.tags.TagMetadata;
 import io.opencensus.tags.TagValue;
 import io.opencensus.tags.Tagger;
 import io.opencensus.trace.AttributeValue;
+import io.opencensus.trace.BlankSpan;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.SpanBuilder;
 import io.opencensus.trace.Status;
 import io.opencensus.trace.Tracer;
+import io.orijtech.integrations.ocjdbc.Observability.TrackingOperation;
 import java.util.Arrays;
 import org.junit.Before;
 import org.junit.Test;
@@ -68,7 +70,9 @@ public class ObservabilityTest {
     MockitoAnnotations.initMocks(this);
     Mockito.doNothing().when(mockViewManager).registerView(any(View.class));
     Mockito.when(mockTagger.currentBuilder()).thenReturn(mockTagContextBuilder);
-    Mockito.when(mockTagContextBuilder.put(any(TagKey.class), any(TagValue.class)))
+    Mockito.when(
+            mockTagContextBuilder.put(
+                any(TagKey.class), any(TagValue.class), any(TagMetadata.class)))
         .thenReturn(mockTagContextBuilder);
     Mockito.when(mockTagContextBuilder.build()).thenReturn(mockTagContext);
     Mockito.when(mockStatsRecorder.newMeasureMap()).thenReturn(mockMeasureMap);
@@ -148,7 +152,8 @@ public class ObservabilityTest {
     TrackingOperation trackingOperation =
         new TrackingOperation("method", "update", mockStatsRecorder, mockTagger, mockTracer);
     trackingOperation.withSpan();
-    Mockito.verify(mockTracer, Mockito.times(1)).spanBuilderWithExplicitParent("method", null);
+    Mockito.verify(mockTracer, Mockito.times(1))
+        .spanBuilderWithExplicitParent("method", BlankSpan.INSTANCE);
     Mockito.verify(mockSpanBuilder, Mockito.times(1)).startSpan();
     Mockito.verify(mockSpan, Mockito.times(1))
         .putAttribute("sql", AttributeValue.stringAttributeValue("update"));
@@ -161,9 +166,15 @@ public class ObservabilityTest {
     trackingOperation.end();
     Mockito.verify(mockTagger, Mockito.times(1)).currentBuilder();
     Mockito.verify(mockTagContextBuilder, Mockito.times(1))
-        .put(eq(Observability.JAVA_SQL_METHOD), eq(TagValue.create("method")));
+        .put(
+            eq(Observability.JAVA_SQL_METHOD),
+            eq(TagValue.create("method")),
+            eq(Observability.TAG_METADATA_TTL_UNLIMITED));
     Mockito.verify(mockTagContextBuilder, Mockito.times(1))
-        .put(eq(Observability.JAVA_SQL_STATUS), eq(Observability.VALUE_OK));
+        .put(
+            eq(Observability.JAVA_SQL_STATUS),
+            eq(Observability.VALUE_OK),
+            eq(Observability.TAG_METADATA_TTL_UNLIMITED));
     Mockito.verify(mockStatsRecorder, Mockito.times(1)).newMeasureMap();
     Mockito.verify(mockMeasureMap, Mockito.times(1))
         .put(eq(Observability.MEASURE_LATENCY_MS), anyDouble());
@@ -180,11 +191,20 @@ public class ObservabilityTest {
     trackingOperation.end();
     Mockito.verify(mockTagger, Mockito.times(1)).currentBuilder();
     Mockito.verify(mockTagContextBuilder, Mockito.times(1))
-        .put(eq(Observability.JAVA_SQL_METHOD), eq(TagValue.create("method")));
+        .put(
+            eq(Observability.JAVA_SQL_METHOD),
+            eq(TagValue.create("method")),
+            eq(Observability.TAG_METADATA_TTL_UNLIMITED));
     Mockito.verify(mockTagContextBuilder, Mockito.times(1))
-        .put(eq(Observability.JAVA_SQL_ERROR), eq(TagValue.create(exception.toString())));
+        .put(
+            eq(Observability.JAVA_SQL_ERROR),
+            eq(TagValue.create(exception.toString())),
+            eq(Observability.TAG_METADATA_TTL_UNLIMITED));
     Mockito.verify(mockTagContextBuilder, Mockito.times(1))
-        .put(eq(Observability.JAVA_SQL_STATUS), eq(Observability.VALUE_ERROR));
+        .put(
+            eq(Observability.JAVA_SQL_STATUS),
+            eq(Observability.VALUE_ERROR),
+            eq(Observability.TAG_METADATA_TTL_UNLIMITED));
     Mockito.verify(mockSpan, Mockito.times(1))
         .setStatus(eq(Status.UNKNOWN.withDescription(exception.toString())));
     Mockito.verify(mockStatsRecorder, Mockito.times(1)).newMeasureMap();

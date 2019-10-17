@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package io.opencensus.integration.jdbc;
+package io.orijtech.integrations.ocjdbc;
 
 import io.opencensus.common.Scope;
 import io.opencensus.stats.Aggregation;
@@ -27,6 +27,8 @@ import io.opencensus.stats.ViewManager;
 import io.opencensus.tags.TagContext;
 import io.opencensus.tags.TagContextBuilder;
 import io.opencensus.tags.TagKey;
+import io.opencensus.tags.TagMetadata;
+import io.opencensus.tags.TagMetadata.TagTtl;
 import io.opencensus.tags.TagValue;
 import io.opencensus.tags.Tagger;
 import io.opencensus.tags.Tags;
@@ -107,6 +109,8 @@ public final class Observability {
                   500000.0)));
 
   static final Aggregation COUNT = Aggregation.Count.create();
+  static final TagMetadata TAG_METADATA_TTL_UNLIMITED =
+      TagMetadata.create(TagTtl.UNLIMITED_PROPAGATION);
 
   static final View SQL_CLIENT_LATENCY_VIEW =
       View.create(
@@ -190,13 +194,15 @@ public final class Observability {
         // Finally record the latency of the entire call,
         // as well as "status": "OK" for non-error calls.
         TagContextBuilder tagContextBuilder = tagger.currentBuilder();
-        tagContextBuilder.put(JAVA_SQL_METHOD, TagValue.create(this.method));
+        tagContextBuilder.put(
+            JAVA_SQL_METHOD, TagValue.create(this.method), TAG_METADATA_TTL_UNLIMITED);
 
         if (recordedError == null) {
-          tagContextBuilder.put(JAVA_SQL_STATUS, VALUE_OK);
+          tagContextBuilder.put(JAVA_SQL_STATUS, VALUE_OK, TAG_METADATA_TTL_UNLIMITED);
         } else {
-          tagContextBuilder.put(JAVA_SQL_ERROR, TagValue.create(recordedError));
-          tagContextBuilder.put(JAVA_SQL_STATUS, VALUE_ERROR);
+          tagContextBuilder.put(
+              JAVA_SQL_ERROR, TagValue.create(recordedError), TAG_METADATA_TTL_UNLIMITED);
+          tagContextBuilder.put(JAVA_SQL_STATUS, VALUE_ERROR, TAG_METADATA_TTL_UNLIMITED);
         }
 
         long totalTimeNs = System.nanoTime() - this.startTimeNs;

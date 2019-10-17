@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package io.opencensus.integration.jdbc;
+package io.orijtech.integrations.ocjdbc;
 
 import io.opencensus.common.Scope;
-import io.opencensus.integration.jdbc.Observability.TraceOption;
-import io.opencensus.integration.jdbc.Observability.TrackingOperation;
+import io.orijtech.integrations.ocjdbc.Observability.TraceOption;
+import io.orijtech.integrations.ocjdbc.Observability.TrackingOperation;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.EnumSet;

@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package io.opencensus.integration.jdbc;
+package io.orijtech.integrations.ocjdbc;
 
-import io.opencensus.integration.jdbc.Observability.TraceOption;
+import io.orijtech.integrations.ocjdbc.Observability.TraceOption;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.SQLException;

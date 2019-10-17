@@ -7,8 +7,8 @@ apply plugin: 'maven'
 apply plugin: "net.ltgt.errorprone"
 apply plugin: "signing"
 
-group = "io.opencensus.integration"
-version = "0.0.2" // CURRENT_OCJDBC_VERSION
+group = "io.orijtech.integrations"
+version = "0.0.5" // CURRENT_OCJDBC_VERSION
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -38,7 +38,7 @@ buildscript {
     }
 }
 
-def opencensusVersion = '0.16.1'
+def opencensusVersion = '0.24.0'
 def errorProneVersion = '2.3.1'
 def findBugsJsr305Version = '3.0.2'
 
