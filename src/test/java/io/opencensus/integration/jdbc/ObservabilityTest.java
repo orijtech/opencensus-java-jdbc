@@ -140,7 +140,7 @@ public class ObservabilityTest {
 
   @Test
   public void registerAllViews() {
-    io.orijtech.integrations.ocjdbc.Observability.registerAllViews(mockViewManager);
+    Observability.registerAllViews(mockViewManager);
     Mockito.verify(mockViewManager, Mockito.times(1))
         .registerView(Observability.SQL_CLIENT_CALLS_VIEW);
     Mockito.verify(mockViewManager, Mockito.times(1))
