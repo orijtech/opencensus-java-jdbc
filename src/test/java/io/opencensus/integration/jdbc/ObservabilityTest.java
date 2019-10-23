@@ -15,7 +15,6 @@
 package io.orijtech.integrations.ocjdbc;
 
 import static com.google.common.truth.Truth.assertThat;
-import static io.orijtech.integrations.ocjdbc.Observability.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyDouble;
 import static org.mockito.Matchers.anyObject;
@@ -88,15 +87,15 @@ public class ObservabilityTest {
 
   @Test
   public void testConstants() {
-    assertThat(JAVA_SQL_METHOD).isEqualTo(TagKey.create("java_sql_method"));
-    assertThat(JAVA_SQL_ERROR).isEqualTo(TagKey.create("java_sql_error"));
-    assertThat(JAVA_SQL_STATUS).isEqualTo(TagKey.create("java_sql_status"));
-    assertThat(VALUE_OK).isEqualTo(TagValue.create("OK"));
-    assertThat(VALUE_ERROR).isEqualTo(TagValue.create("ERROR"));
-    assertThat(MEASURE_LATENCY_MS)
+    assertThat(Observability.JAVA_SQL_METHOD).isEqualTo(TagKey.create("java_sql_method"));
+    assertThat(Observability.JAVA_SQL_ERROR).isEqualTo(TagKey.create("java_sql_error"));
+    assertThat(Observability.JAVA_SQL_STATUS).isEqualTo(TagKey.create("java_sql_status"));
+    assertThat(Observability.VALUE_OK).isEqualTo(TagValue.create("OK"));
+    assertThat(Observability.VALUE_ERROR).isEqualTo(TagValue.create("ERROR"));
+    assertThat(Observability.MEASURE_LATENCY_MS)
         .isEqualTo(
             MeasureDouble.create("java.sql/latency", "The latency of calls in milliseconds", "ms"));
-    assertThat(DEFAULT_MILLISECONDS_DISTRIBUTION)
+    assertThat(Observability.DEFAULT_MILLISECONDS_DISTRIBUTION)
         .isEqualTo(
             Distribution.create(
                 BucketBoundaries.create(
@@ -143,9 +142,9 @@ public class ObservabilityTest {
   public void registerAllViews() {
     io.orijtech.integrations.ocjdbc.Observability.registerAllViews(mockViewManager);
     Mockito.verify(mockViewManager, Mockito.times(1))
-        .registerView(SQL_CLIENT_CALLS_VIEW);
+        .registerView(Observability.SQL_CLIENT_CALLS_VIEW);
     Mockito.verify(mockViewManager, Mockito.times(1))
-        .registerView(SQL_CLIENT_LATENCY_VIEW);
+        .registerView(Observability.SQL_CLIENT_LATENCY_VIEW);
   }
 
   @Test
@@ -168,17 +167,17 @@ public class ObservabilityTest {
     Mockito.verify(mockTagger, Mockito.times(1)).currentBuilder();
     Mockito.verify(mockTagContextBuilder, Mockito.times(1))
         .put(
-            eq(JAVA_SQL_METHOD),
+            eq(Observability.JAVA_SQL_METHOD),
             eq(TagValue.create("method")),
-            eq(TAG_METADATA_TTL_UNLIMITED));
+            eq(Observability.TAG_METADATA_TTL_UNLIMITED));
     Mockito.verify(mockTagContextBuilder, Mockito.times(1))
         .put(
-            eq(JAVA_SQL_STATUS),
-            eq(VALUE_OK),
-            eq(TAG_METADATA_TTL_UNLIMITED));
+            eq(Observability.JAVA_SQL_STATUS),
+            eq(Observability.VALUE_OK),
+            eq(Observability.TAG_METADATA_TTL_UNLIMITED));
     Mockito.verify(mockStatsRecorder, Mockito.times(1)).newMeasureMap();
     Mockito.verify(mockMeasureMap, Mockito.times(1))
-        .put(eq(MEASURE_LATENCY_MS), anyDouble());
+        .put(eq(Observability.MEASURE_LATENCY_MS), anyDouble());
     Mockito.verify(mockMeasureMap, Mockito.times(1)).record(any(TagContext.class));
     Mockito.verify(mockSpan, Mockito.times(1)).end();
   }
