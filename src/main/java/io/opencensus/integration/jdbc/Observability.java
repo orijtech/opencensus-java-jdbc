@@ -200,8 +200,10 @@ public final class Observability {
         if (recordedError == null) {
           tagContextBuilder.put(JAVA_SQL_STATUS, VALUE_OK, TAG_METADATA_TTL_UNLIMITED);
         } else {
+          // Make valid tag value
+          String errorTag = makeValidTagValue(recordedError);
           tagContextBuilder.put(
-              JAVA_SQL_ERROR, TagValue.create(recordedError), TAG_METADATA_TTL_UNLIMITED);
+              JAVA_SQL_ERROR, TagValue.create(errorTag), TAG_METADATA_TTL_UNLIMITED);
           tagContextBuilder.put(JAVA_SQL_STATUS, VALUE_ERROR, TAG_METADATA_TTL_UNLIMITED);
         }
 
@@ -226,6 +228,27 @@ public final class Observability {
     private void recordStatWithTags(double value, TagContext tagContext) {
       statsRecorder.newMeasureMap().put(Observability.MEASURE_LATENCY_MS, value).record(tagContext);
     }
+  }
+
+  // Makes sure the tag value will be accepted as a valid tag value by TagValue::create
+  // This will limit the string to TagValue.MAX_LENGTH and if any character is not in
+  // the
+  private static String makeValidTagValue(String tagValue) {
+    int length = Math.min(tagValue.length(), TagValue.MAX_LENGTH);
+    StringBuilder validTagValue = new StringBuilder(length);
+    for (int i = 0; i < length; i++) {
+      char ch = tagValue.charAt(i);
+      if (isPrintableChar(ch)) {
+        validTagValue.append(ch);
+      } else {
+        validTagValue.append(' ');
+      }
+    }
+    return validTagValue.toString();
+  }
+
+  private static boolean isPrintableChar(char ch) {
+    return ch >= ' ' && ch <= '~';
   }
 
   static TrackingOperation createRoundtripTrackingSpan(String method) {
