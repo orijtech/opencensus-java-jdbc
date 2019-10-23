@@ -183,22 +183,74 @@ public class ObservabilityTest {
   }
 
   @Test
+  public void trackingOperation_end_recordException() {
+    TrackingOperation trackingOperation =
+        new TrackingOperation("method", "update", mockStatsRecorder, mockTagger, mockTracer);
+    IllegalArgumentException exception = new IllegalArgumentException("message");
+    trackingOperation.recordException(exception);
+    trackingOperation.end();
+    Mockito.verify(mockTagger, Mockito.times(1)).currentBuilder();
+    Mockito.verify(mockTagContextBuilder, Mockito.times(1))
+        .put(
+            eq(Observability.JAVA_SQL_METHOD),
+            eq(TagValue.create("method")),
+            eq(Observability.TAG_METADATA_TTL_UNLIMITED));
+    Mockito.verify(mockTagContextBuilder, Mockito.times(1))
+        .put(
+            eq(Observability.JAVA_SQL_ERROR),
+            eq(TagValue.create(exception.toString())),
+            eq(Observability.TAG_METADATA_TTL_UNLIMITED));
+    Mockito.verify(mockTagContextBuilder, Mockito.times(1))
+        .put(
+            eq(Observability.JAVA_SQL_STATUS),
+            eq(Observability.VALUE_ERROR),
+            eq(Observability.TAG_METADATA_TTL_UNLIMITED));
+    Mockito.verify(mockSpan, Mockito.times(1))
+        .setStatus(eq(Status.UNKNOWN.withDescription(exception.toString())));
+    Mockito.verify(mockStatsRecorder, Mockito.times(1)).newMeasureMap();
+    Mockito.verify(mockMeasureMap, Mockito.times(1))
+        .put(eq(Observability.MEASURE_LATENCY_MS), anyDouble());
+    Mockito.verify(mockMeasureMap, Mockito.times(1)).record(any(TagContext.class));
+    Mockito.verify(mockSpan, Mockito.times(1)).end();
+  }
+
+  @Test
   public void trackingOperation_end_recordException_with_unprintable_characters() {
     TrackingOperation trackingOperation =
-            new TrackingOperation("method", "update", mockStatsRecorder, mockTagger, mockTracer);
+        new TrackingOperation("method", "update", mockStatsRecorder, mockTagger, mockTracer);
     IllegalArgumentException exception = new IllegalArgumentException("message\nmore message");
     trackingOperation.recordException(exception);
     trackingOperation.end();
+    Mockito.verify(mockTagContextBuilder, Mockito.times(1))
+        .put(
+            eq(Observability.JAVA_SQL_METHOD),
+            eq(TagValue.create("method")),
+            eq(Observability.TAG_METADATA_TTL_UNLIMITED));
+    Mockito.verify(mockTagContextBuilder, Mockito.times(1))
+        .put(
+            eq(Observability.JAVA_SQL_ERROR),
+            eq(TagValue.create("java.lang.IllegalArgumentException: message more message")),
+            eq(Observability.TAG_METADATA_TTL_UNLIMITED));
   }
 
   @Test
   public void trackingOperation_end_recordException_with_too_long_string() {
     TrackingOperation trackingOperation =
-            new TrackingOperation("method", "update", mockStatsRecorder, mockTagger, mockTracer);
+        new TrackingOperation("method", "update", mockStatsRecorder, mockTagger, mockTracer);
     char[] longString = new char[300];
     Arrays.fill(longString, 'x');
-    IllegalArgumentException exception = new IllegalArgumentException(new String(longString));
+    Exception exception = new IllegalArgumentException(new String(longString));
     trackingOperation.recordException(exception);
     trackingOperation.end();
+    Mockito.verify(mockTagContextBuilder, Mockito.times(1))
+        .put(
+            eq(Observability.JAVA_SQL_METHOD),
+            eq(TagValue.create("method")),
+            eq(Observability.TAG_METADATA_TTL_UNLIMITED));
+    Mockito.verify(mockTagContextBuilder, Mockito.times(1))
+        .put(
+            eq(Observability.JAVA_SQL_ERROR),
+            eq(TagValue.create("java.lang.IllegalArgumentException: " + new String(longString).substring(0,219))),
+            eq(Observability.TAG_METADATA_TTL_UNLIMITED));
   }
 }
