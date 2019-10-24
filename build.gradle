@@ -8,7 +8,7 @@ apply plugin: "net.ltgt.errorprone"
 apply plugin: "signing"
 
 group = "io.orijtech.integrations"
-version = "0.0.5" // CURRENT_OCJDBC_VERSION
+version = "0.0.6" // CURRENT_OCJDBC_VERSION
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
