@@ -250,7 +250,10 @@ public class ObservabilityTest {
     Mockito.verify(mockTagContextBuilder, Mockito.times(1))
         .put(
             eq(Observability.JAVA_SQL_ERROR),
-            eq(TagValue.create("java.lang.IllegalArgumentException: " + new String(longString).substring(0,219))),
+            eq(
+                TagValue.create(
+                    "java.lang.IllegalArgumentException: "
+                        + new String(longString).substring(0, 219))),
             eq(Observability.TAG_METADATA_TTL_UNLIMITED));
   }
 }

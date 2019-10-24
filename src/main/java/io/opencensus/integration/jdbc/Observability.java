@@ -230,9 +230,8 @@ public final class Observability {
     }
   }
 
-  // Makes sure the tag value will be accepted as a valid tag value by TagValue::create
-  // This will limit the string to TagValue.MAX_LENGTH and if any character is not in
-  // the
+  // Replaces any characters that aren't deemed valid by TagValue::create, with a space.
+  // Also limits the length of the validated string to TagValue.MAX_LENGTH.
   private static String makeValidTagValue(String tagValue) {
     int length = Math.min(tagValue.length(), TagValue.MAX_LENGTH);
     StringBuilder validTagValue = new StringBuilder(length);
@@ -247,6 +246,7 @@ public final class Observability {
     return validTagValue.toString();
   }
 
+  // This code is copied from io.opencensus.internal.StringUtils.isPrintableString.
   private static boolean isPrintableChar(char ch) {
     return ch >= ' ' && ch <= '~';
   }
